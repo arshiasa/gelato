@@ -17,6 +17,7 @@ BRANCHES = {
 }
 
 TARGET_KEYWORD = 'پشن'
+VALIDATION_KEYWORD = 'ژلاتو'
 
 def load_state():
     if os.path.exists(STATE_FILE):
@@ -70,6 +71,8 @@ def check_branch_online(url, local_file=None, proxy=None):
     try:
         with opener.open(req, timeout=10) as resp:
             html = resp.read().decode('utf-8', errors='ignore')
+            if VALIDATION_KEYWORD not in html:
+                raise Exception("Fake proxy block page detected (missing validation keyword)")
             return TARGET_KEYWORD in html, len(html)
     except Exception as e:
         return None, 0
