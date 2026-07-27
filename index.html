@@ -229,7 +229,7 @@
         measure.font = fontStr;
         const metrics = measure.measureText(text);
         const cssW = Math.ceil(metrics.width) + 2;
-        const cssH = Math.ceil(fontSize * 1.25);
+        const cssH = Math.ceil(fontSize * 1.4);
 
         // Create display canvas — buffer at DPR resolution, CSS at exact text size
         const canvas = document.createElement('canvas');
@@ -261,7 +261,7 @@
         title.innerHTML = '';
         const wrap = document.createElement('span');
         wrap.style.display = 'inline-block';
-        wrap.style.verticalAlign = 'middle';
+        wrap.style.verticalAlign = '-0.15em';
         wrap.style.lineHeight = '0';
         wrap.style.margin = '0 1px';
         wrap.appendChild(canvas);
