@@ -13,22 +13,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { color-scheme: dark; }
-        html, body {
+        html {
             color-scheme: dark;
             background-color: #0c0a09;
             color: #f5f5f4;
             font-family: 'Vazirmatn', sans-serif;
         }
         body {
-            background-color: #0c0a09;
+            background: transparent;
         }
         #bg-canvas {
             position: fixed;
             top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
+            width: 100vw; height: 100vh;
             pointer-events: none;
             display: block;
+        }
+        body > header, body > main, body > footer {
+            position: relative;
+            z-index: 1;
         }
         .glass-card {
             background: rgba(28, 25, 23, 0.7);
@@ -223,8 +226,8 @@
         const measure = document.createElement('canvas').getContext('2d');
         measure.font = fontStr;
         const metrics = measure.measureText(text);
-        const cssW = Math.ceil(metrics.width) + 8;
-        const cssH = Math.ceil(fontSize * 1.35);
+        const cssW = Math.ceil(metrics.width) + 2;
+        const cssH = Math.ceil(fontSize * 1.25);
 
         // Create display canvas — buffer at DPR resolution, CSS at exact text size
         const canvas = document.createElement('canvas');
@@ -258,7 +261,7 @@
         wrap.style.display = 'inline-block';
         wrap.style.verticalAlign = 'middle';
         wrap.style.lineHeight = '0';
-        wrap.style.margin = '0 4px';
+        wrap.style.margin = '0 1px';
         wrap.appendChild(canvas);
         title.appendChild(document.createTextNode('طعم '));
         title.appendChild(wrap);
