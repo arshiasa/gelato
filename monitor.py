@@ -38,25 +38,21 @@ def save_state(state):
     except Exception as e:
         print(f"Error saving state.json: {e}")
 
-def get_iranian_proxies():
-    url = "https://proxylist.geonode.com/api/proxy-list?country=IR&protocols=http,https&limit=50&sort_by=lastChecked&sort_type=desc"
-    try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read().decode('utf-8'))
-            return [f"http://{p['ip']}:{p['port']}" for p in data.get('data', [])]
-    except Exception as e:
-        print(f"Failed to fetch proxies: {e}")
-        return []
-
-def check_branch_online(url, local_file=None, proxy=None):
+def check_branch_online(url, local_file=None):
     if local_file and os.path.exists(local_file):
         with open(local_file, 'r', encoding='utf-8', errors='ignore') as f:
             html = f.read()
         return TARGET_KEYWORD in html, len(html)
 
+    arvan_worker_url = os.getenv('ARVAN_WORKER_URL')
+    req_url = url
+    if arvan_worker_url:
+        parsed = urllib.parse.urlparse(url)
+        req_url = arvan_worker_url.rstrip('/') + parsed.path + ('?' + parsed.query if parsed.query else '')
+        print(f"Routing request through Arvan Worker: {req_url}")
+
     req = urllib.request.Request(
-        url,
+        req_url,
         headers={
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -64,17 +60,14 @@ def check_branch_online(url, local_file=None, proxy=None):
         }
     )
     
-    opener = urllib.request.build_opener()
-    if proxy:
-        opener = urllib.request.build_opener(urllib.request.ProxyHandler({'http': proxy, 'https': proxy}))
-
     try:
-        with opener.open(req, timeout=10) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:
             html = resp.read().decode('utf-8', errors='ignore')
             if VALIDATION_KEYWORD not in html:
-                raise Exception("Fake proxy block page detected (missing validation keyword)")
+                raise Exception("Validation keyword 'ژلاتو' missing from response HTML")
             return TARGET_KEYWORD in html, len(html)
     except Exception as e:
+        print(f"Failed to fetch {url} (routed: {req_url != url}): {e}")
         return None, 0
 
 def send_telegram_alert(bot_token, chat_ids, message):
@@ -132,18 +125,11 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False, mock_files=Fals
 
     previous_state = load_state()
     current_state = {}
+    current_errors = {}
     changes = []
     summary_lines = []
 
     print("Checking Gelato House Passion Fruit availability...")
-    
-    proxies = []
-    if not mock_files:
-        print("Fetching free Iranian proxies...")
-        proxies = get_iranian_proxies()
-        print(f"Found {len(proxies)} proxies.")
-
-    working_proxy = None
 
     for branch_name, branch_url in BRANCHES.items():
         mock_file = None
@@ -153,29 +139,13 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False, mock_files=Fals
             else:
                 mock_file = '055ac9b8-3dc6-4b91-90ef-e10ecfb8d6f0.htm'
 
-        is_available, html_len = None, 0
-        
-        if mock_files:
-            is_available, html_len = check_branch_online(branch_url, local_file=mock_file)
-        else:
-            proxies_to_test = []
-            if working_proxy:
-                proxies_to_test.append(working_proxy)
-            proxies_to_test.append(None) # Always try direct connection
-            for p in proxies:
-                if p not in proxies_to_test:
-                    proxies_to_test.append(p)
-                    
-            for proxy in proxies_to_test:
-                is_available, html_len = check_branch_online(branch_url, proxy=proxy)
-                if is_available is not None:
-                    if proxy and proxy != working_proxy:
-                        print(f"✅ Bypassed firewall using proxy {proxy}")
-                    working_proxy = proxy
-                    break
+        is_available, html_len = check_branch_online(branch_url, local_file=mock_file)
 
         if is_available is None:
-            print(f"[{branch_name}] ⚠️ Could not check branch (All proxies failed/Timeout).")
+            print(f"[{branch_name}] ⚠️ Could not check branch (Network Error/Timeout).")
+            # Fallback to previous availability status in case of network failure
+            current_state[branch_name] = previous_state.get(branch_name, False)
+            current_errors[branch_name] = "timeout"
             continue
 
         status_str = "Available (موجود)" if is_available else "Not Available (ناموجود)"
@@ -192,6 +162,7 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False, mock_files=Fals
 
     save_data = {
         "status": current_state,
+        "errors": current_errors,
         "last_checked": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }
     save_state(save_data)
