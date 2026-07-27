@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>پایگاه پایش پشن فروت | ژلاتو هاوس</title>
+    <meta name="color-scheme" content="light only">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
@@ -15,13 +16,20 @@
         html {
             background-color: #fffbf5; /* Soft pastel cream */
             color: #44403c;
+            color-scheme: light only;
         }
         body {
-            /* Soft pastel peach/yellow radial glows using standard CSS */
-            background: 
-                radial-gradient(circle at 15% 12%, rgba(253, 186, 116, 0.4) 0%, rgba(253, 186, 116, 0) 50%),
-                radial-gradient(circle at 85% 85%, rgba(253, 230, 138, 0.4) 0%, rgba(253, 230, 138, 0) 50%);
-            background-color: #fffbf5;
+            /* Background is handled by canvas to bypass Chrome forced dark mode */
+            background-color: transparent;
+        }
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.6);
@@ -55,6 +63,9 @@
     </style>
 </head>
 <body class="min-h-[100dvh] flex flex-col justify-between p-4 sm:p-6 lg:p-8">
+
+    <!-- Canvas Background for Dark Mode Bypass -->
+    <canvas id="bg-canvas"></canvas>
 
     <!-- Top Bar -->
     <header class="max-w-5xl w-full mx-auto flex items-center justify-between py-4 mb-8 border-b border-orange-900/10">
@@ -218,6 +229,42 @@
 
     fetchStatus();
     setInterval(fetchStatus, 60000); // Check for new json file every 60s without reloading
+
+    // ─── Canvas Background Bypass ─────────────────────────────────────────────
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    function drawBackground() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Base color
+        ctx.fillStyle = '#fffbf5';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Top-left peach glow
+        const cx1 = canvas.width * 0.15;
+        const cy1 = canvas.height * 0.12;
+        const r1 = Math.max(canvas.width, canvas.height) * 0.5;
+        const grad1 = ctx.createRadialGradient(cx1, cy1, 0, cx1, cy1, r1);
+        grad1.addColorStop(0, 'rgba(253, 186, 116, 0.4)');
+        grad1.addColorStop(1, 'rgba(253, 186, 116, 0)');
+        ctx.fillStyle = grad1;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Bottom-right yellow glow
+        const cx2 = canvas.width * 0.85;
+        const cy2 = canvas.height * 0.85;
+        const r2 = Math.max(canvas.width, canvas.height) * 0.5;
+        const grad2 = ctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, r2);
+        grad2.addColorStop(0, 'rgba(253, 230, 138, 0.4)');
+        grad2.addColorStop(1, 'rgba(253, 230, 138, 0)');
+        ctx.fillStyle = grad2;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    
+    window.addEventListener('resize', drawBackground);
+    drawBackground();
     </script>
 </body>
 </html>
