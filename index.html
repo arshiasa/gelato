@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="supported-color-schemes" content="dark">
+    <meta name="darkreader-lock">
+    <title>پایگاه پایش پشن فروت | ژلاتو هاوس</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Vazirmatn:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            color-scheme: dark !important;
+            supported-color-schemes: dark !important;
+        }
+        html, body {
+            color-scheme: dark !important;
+            background-color: #0c0a09 !important;
+            color: #f5f5f4 !important;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        body {
+            background-color: #0c0a09 !important;
+        }
+        .glass-card {
+            background: rgba(28, 25, 23, 0.7) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+        }
+        .pulse-emerald {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-emerald 2s infinite;
+        }
+        @keyframes pulse-emerald {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .pulse-rose {
+            box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7);
+            animation: pulse-rose 2s infinite;
+        }
+        @keyframes pulse-rose {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(244, 63, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
+        }
+    </style>
+</head>
+<body class="min-h-[100dvh] flex flex-col justify-between p-4 sm:p-6 lg:p-8 relative">
+
+    <!-- Ambient Glow SVG (Immune to Android Forced Dark Red Shift) -->
+    <svg class="fixed inset-0 w-full h-full pointer-events-none -z-10" preserveAspectRatio="none">
+        <defs>
+            <radialGradient id="ambientOrange" cx="20%" cy="20%" r="50%">
+                <stop offset="0%" stop-color="#f97316" stop-opacity="0.15" />
+                <stop offset="100%" stop-color="#0c0a09" stop-opacity="0" />
+            </radialGradient>
+            <radialGradient id="ambientGold" cx="80%" cy="80%" r="50%">
+                <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.10" />
+                <stop offset="100%" stop-color="#0c0a09" stop-opacity="0" />
+            </radialGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#ambientOrange)" />
+        <rect width="100%" height="100%" fill="url(#ambientGold)" />
+    </svg>
+
+    <!-- Top Bar Navigation -->
+    <header class="max-w-5xl w-full mx-auto flex items-center justify-between py-4 mb-8 border-b border-stone-800/80">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl overflow-hidden relative flex items-center justify-center text-xl shadow-lg shadow-orange-500/20">
+                <svg class="absolute inset-0 w-full h-full" viewBox="0 0 40 40">
+                    <defs>
+                        <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#f97316" />
+                            <stop offset="100%" stop-color="#fbbf24" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="40" height="40" rx="14" fill="url(#iconGrad)" />
+                </svg>
+                <span class="relative z-10">🍧</span>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold text-white tracking-tight">پایش آنلاین ژلاتو هاوس</h1>
+                <p class="text-xs text-stone-400">Gelato House Passion Fruit Tracker</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-stone-800 text-stone-300 border border-stone-700/50">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                سیستم فعال
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-5xl w-full mx-auto my-auto py-4">
+
+        <!-- Hero Title Section -->
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-3xl sm:text-5xl font-extrabold text-white leading-tight mb-4 flex items-center justify-center flex-wrap gap-2">
+                <span>طعم</span>
+                <svg class="h-[1.15em] w-[4.6em] inline-block align-middle overflow-visible" viewBox="0 0 210 60">
+                    <defs>
+                        <linearGradient id="passionGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#fb923c" />
+                            <stop offset="50%" stop-color="#fcd34d" />
+                            <stop offset="100%" stop-color="#f97316" />
+                        </linearGradient>
+                    </defs>
+                    <text x="50%" y="45" text-anchor="middle" fill="url(#passionGrad)" font-family="Vazirmatn, sans-serif" font-weight="900" font-size="44">پشن فروت</text>
+                </svg>
+                <span>موجود هست یا نه؟</span>
+            </h2>
+            <p class="text-stone-400 text-sm sm:text-base leading-relaxed">
+                این سامانه به صورت خودکار منوی شعبات <span class="text-white font-semibold">ولنجک</span> و <span class="text-white font-semibold">شهرک غرب</span> را بررسی می‌کند.
+            </p>
+        </div>
+
+        <!-- Location Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+
+            <!-- Branch 1: Shahrak Gharb -->
+            <div class="glass-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:border-stone-700">
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-stone-800 flex items-center justify-center text-sm">
+                                📍
+                            </div>
+                            <h3 class="text-xl font-bold text-white">شعبه شهرک غرب</h3>
+                        </div>
+                        <!-- Status Badge: Out of Stock -->
+                        <span id="shahrak-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 pulse-rose"></span>
+                            ناموجود
+                        </span>
+                    </div>
+
+                    <p class="text-stone-400 text-sm mb-6 leading-relaxed">
+                        آیتم اسکوپ سوربتوی پشن فروت در حال حاضر در منوی آنلاین این شعبه قرار ندارد.
+                    </p>
+                </div>
+
+                <div class="pt-6 border-t border-stone-800/80 flex items-center justify-between">
+                    <span class="text-xs text-stone-500" id="shahrak-time">آخرین بررسی: چند لحظه پیش</span>
+                    <a href="http://order.gelatohouse.ir/order/gelatohouse" target="_blank" rel="noopener" 
+                       class="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 transition-colors">
+                        سفارش آنلاین
+                        <svg class="w-3.5 h-3.5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Branch 2: Velenjak -->
+            <div class="glass-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:border-orange-500/30 border-orange-500/20">
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-sm">
+                                🍦
+                            </div>
+                            <h3 class="text-xl font-bold text-white">شعبه ولنجک</h3>
+                        </div>
+                        <!-- Status Badge: Available -->
+                        <span id="velenjak-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-emerald"></span>
+                            موجود در منو
+                        </span>
+                    </div>
+
+                    <p class="text-stone-300 text-sm mb-6 leading-relaxed">
+                        <strong class="text-emerald-400">اسکوپ سوربتوی پشن فروت</strong> در این شعبه موجود می‌باشد و آماده سفارش آنلاین است.
+                    </p>
+                </div>
+
+                <div class="pt-6 border-t border-stone-800/80 flex items-center justify-between">
+                    <span class="text-xs text-stone-500" id="velenjak-time">آخرین بررسی: چند لحظه پیش</span>
+                    <a href="http://order.gelatohouse.ir/order/gelato-house" target="_blank" rel="noopener" 
+                       class="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20 transition-colors">
+                        ثبت سفارش فوری
+                        <svg class="w-3.5 h-3.5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-5xl w-full mx-auto py-6 border-t border-stone-800/80 text-center text-xs text-stone-500">
+        <p>By Arshia, made with love ❤️</p>
+    </footer>
+
+    <script>
+        async function fetchStatus() {
+            try {
+                const res = await fetch('/api/status');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.results) {
+                        updateUI(data.results);
+                    }
+                }
+            } catch (err) {
+                console.log('Using pre-rendered status state:', err);
+            }
+        }
+        function updateUI(results) {
+            const shahrak = results['Shahrak Gharb (شهرک غرب)'];
+            const sBadge = document.getElementById('shahrak-badge');
+            if (shahrak) {
+                sBadge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                sBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-emerald"></span> موجود در منو';
+            } else {
+                sBadge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                sBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-500 pulse-rose"></span> ناموجود';
+            }
+
+            const velenjak = results['Velenjak (ولنجک)'];
+            const vBadge = document.getElementById('velenjak-badge');
+            if (velenjak) {
+                vBadge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                vBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-emerald"></span> موجود در منو';
+            } else {
+                vBadge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                vBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-500 pulse-rose"></span> ناموجود';
+            }
+        }
+        fetchStatus();
+    </script>
+</body>
+</html>

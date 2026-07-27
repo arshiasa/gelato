@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+*.htm
+state.json
+.geminirules
