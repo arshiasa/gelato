@@ -60,6 +60,14 @@
             70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(244,63,94,0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(244,63,94,0.4); }
         }
+        .pulse-amber {
+            animation: pulse-amber 2s infinite;
+        }
+        @keyframes pulse-amber {
+            0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
+            70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(245,158,11,0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
+        }
     </style>
 </head>
 <body class="min-h-[100dvh] flex flex-col justify-between p-4 sm:p-6 lg:p-8">
@@ -169,19 +177,46 @@
 
     <script>
     // ─── Status API ───────────────────────────────────────────────────────────
+    // Put your ArvanCloud app URL here to fetch directly (e.g. 'https://gelato.arvanpages.ir')
+    // If blank, it will load locally from state.json
+    const ARVAN_API_URL = '';
+
     async function fetchStatus() {
         try {
-            const res = await fetch('state.json?t=' + Date.now());
+            // If the website is hosted on the same Arvan container, use relative path. 
+            // Otherwise check if a custom API URL is defined.
+            let endpoint = 'state.json?t=' + Date.now();
+            if (ARVAN_API_URL) {
+                endpoint = `${ARVAN_API_URL.replace(/\/$/, '')}/api/status?t=${Date.now()}`;
+            } else if (window.location.port === '5000' || window.location.pathname === '/') {
+                // If loaded directly from Flask port 5000/Arvan
+                endpoint = '/api/status?t=' + Date.now();
+            }
+
+            const res = await fetch(endpoint);
             if (res.ok) {
                 const data = await res.json();
                 if (data && data.status) {
-                    updateUI(data.status);
+                    updateUI(data.status, data.errors || {});
                     if (data.last_checked) {
                         updateTime(data.last_checked);
                     }
                 }
+            } else {
+                showGlobalError();
             }
-        } catch (e) {}
+        } catch (e) {
+            showGlobalError();
+        }
+    }
+
+    function showGlobalError() {
+        // Fallback: mark everything as connection error
+        const mockErrors = {
+            'Shahrak Gharb (شهرک غرب)': 'timeout',
+            'Velenjak (ولنجک)': 'timeout'
+        };
+        updateUI({}, mockErrors);
     }
 
     function updateTime(isoString) {
@@ -205,26 +240,32 @@
         document.getElementById('velenjak-time').innerText = formatted;
     }
 
-    function updateUI(results) {
-        const shahrak = results['Shahrak Gharb (شهرک غرب)'];
-        const sBadge = document.getElementById('shahrak-badge');
-        if (shahrak) {
-            sBadge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100";
-            sBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-emerald"></span> موجود در منو';
-        } else {
-            sBadge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-500 border border-rose-100";
-            sBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-400 pulse-rose"></span> ناموجود';
-        }
+    function updateUI(results, errors) {
+        const branches = ['Shahrak Gharb (شهرک غرب)', 'Velenjak (ولنجک)'];
+        const badgeIds = {
+            'Shahrak Gharb (شهرک غرب)': 'shahrak-badge',
+            'Velenjak (ولنجک)': 'velenjak-badge'
+        };
 
-        const velenjak = results['Velenjak (ولنجک)'];
-        const vBadge = document.getElementById('velenjak-badge');
-        if (velenjak) {
-            vBadge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100";
-            vBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-emerald"></span> موجود در منو';
-        } else {
-            vBadge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-500 border border-rose-100";
-            vBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-400 pulse-rose"></span> ناموجود';
-        }
+        branches.forEach(branch => {
+            const badge = document.getElementById(badgeIds[branch]);
+            if (!badge) return;
+
+            if (errors && errors[branch]) {
+                // Connection Error State
+                badge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-100";
+                badge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 pulse-amber"></span> خطا در به‌روزرسانی';
+            } else {
+                const isAvailable = results[branch];
+                if (isAvailable) {
+                    badge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100";
+                    badge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-emerald"></span> موجود در منو';
+                } else {
+                    badge.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-500 border border-rose-100";
+                    badge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-400 pulse-rose"></span> ناموجود';
+                }
+            }
+        });
     }
 
     fetchStatus();
