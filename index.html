@@ -160,12 +160,38 @@
     // ─── Status API ───────────────────────────────────────────────────────────
     async function fetchStatus() {
         try {
-            const res = await fetch('/api/status');
+            const res = await fetch('state.json?t=' + Date.now());
             if (res.ok) {
                 const data = await res.json();
-                if (data && data.results) updateUI(data.results);
+                if (data && data.status) {
+                    updateUI(data.status);
+                    if (data.last_checked) {
+                        updateTime(data.last_checked);
+                    }
+                }
             }
         } catch (e) {}
+    }
+
+    function updateTime(isoString) {
+        const date = new Date(isoString);
+        const rtf = new Intl.RelativeTimeFormat('fa', { numeric: 'auto' });
+        const diffSeconds = Math.round((date - new Date()) / 1000);
+        
+        let relativeTime;
+        if (Math.abs(diffSeconds) < 60) {
+            relativeTime = 'چند لحظه پیش';
+        } else if (Math.abs(diffSeconds) < 3600) {
+            relativeTime = rtf.format(Math.round(diffSeconds / 60), 'minute');
+        } else if (Math.abs(diffSeconds) < 86400) {
+            relativeTime = rtf.format(Math.round(diffSeconds / 3600), 'hour');
+        } else {
+            relativeTime = rtf.format(Math.round(diffSeconds / 86400), 'day');
+        }
+
+        const formatted = `آخرین بررسی: ${relativeTime}`;
+        document.getElementById('shahrak-time').innerText = formatted;
+        document.getElementById('velenjak-time').innerText = formatted;
     }
 
     function updateUI(results) {
@@ -191,6 +217,7 @@
     }
 
     fetchStatus();
+    setInterval(fetchStatus, 60000); // Check for new json file every 60s without reloading
     </script>
 </body>
 </html>

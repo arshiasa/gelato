@@ -4,6 +4,7 @@ import json
 import argparse
 import urllib.request
 import urllib.parse
+import datetime
 
 # Set UTF-8 encoding for standard output
 sys.stdout.reconfigure(encoding='utf-8')
@@ -21,7 +22,10 @@ def load_state():
     if os.path.exists(STATE_FILE):
         try:
             with open(STATE_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                data = json.load(f)
+                if "status" in data:
+                    return data["status"]
+                return data
         except Exception as e:
             print(f"Error loading state.json: {e}")
     return {}
@@ -141,7 +145,11 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False, mock_files=Fals
 
         summary_lines.append(f"{icon} <b>{branch_name}</b>: {'<b>موجود (Available)</b>' if is_available else 'ناموجود (Out of stock)'}\n🔗 <a href='{branch_url}'>سفارش آنلاین</a>")
 
-    save_state(current_state)
+    save_data = {
+        "status": current_state,
+        "last_checked": datetime.datetime.now(datetime.timezone.utc).isoformat()
+    }
+    save_state(save_data)
 
     if changes or force_notify:
         alert_msg = "🍧 <b>Gelato House Passion Fruit Update</b> 🍧\n\n"
