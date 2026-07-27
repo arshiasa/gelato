@@ -21,9 +21,14 @@
         }
         body {
             background-color: #0c0a09;
-            background-image:
-                radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 80%, rgba(251, 191, 36, 0.10) 0%, transparent 40%);
+        }
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            display: block;
         }
         .glass-card {
             background: rgba(28, 25, 23, 0.7);
@@ -60,6 +65,8 @@
     </style>
 </head>
 <body class="min-h-[100dvh] flex flex-col justify-between p-4 sm:p-6 lg:p-8">
+    <!-- Background glow canvas: drawn by JS so Android forced-dark never touches it -->
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
     <!-- Top Bar -->
     <header class="max-w-5xl w-full mx-auto flex items-center justify-between py-4 mb-8 border-b border-stone-800/80">
@@ -162,6 +169,37 @@
     </footer>
 
     <script>
+    // ─── Background Glow Canvas ────────────────────────────────────────────────
+    // Canvas pixels are NEVER touched by Android's forced-dark filter.
+    function drawBackground() {
+        const canvas = document.getElementById('bg-canvas');
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+
+        // Base fill
+        ctx.fillStyle = '#0c0a09';
+        ctx.fillRect(0, 0, w, h);
+
+        // Glow 1: top-left orange
+        const g1 = ctx.createRadialGradient(w * 0.2, h * 0.2, 0, w * 0.2, h * 0.2, Math.max(w, h) * 0.45);
+        g1.addColorStop(0, 'rgba(249,115,22,0.18)');
+        g1.addColorStop(1, 'rgba(249,115,22,0)');
+        ctx.fillStyle = g1;
+        ctx.fillRect(0, 0, w, h);
+
+        // Glow 2: bottom-right amber
+        const g2 = ctx.createRadialGradient(w * 0.8, h * 0.8, 0, w * 0.8, h * 0.8, Math.max(w, h) * 0.45);
+        g2.addColorStop(0, 'rgba(251,191,36,0.12)');
+        g2.addColorStop(1, 'rgba(251,191,36,0)');
+        ctx.fillStyle = g2;
+        ctx.fillRect(0, 0, w, h);
+    }
+    drawBackground();
+    window.addEventListener('resize', drawBackground);
+
     // ─── Canvas Passion Fruit Gradient Text ───────────────────────────────────
     // Canvas pixel output is NEVER touched by Android's forced-dark filter.
     function drawPassionFruit() {
