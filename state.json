@@ -1,4 +1,11 @@
 {
-  "status": {},
-  "last_checked": "2026-07-27T16:43:36.645604+00:00"
+  "status": {
+    "Shahrak Gharb (شهرک غرب)": false,
+    "Velenjak (ولنجک)": false
+  },
+  "errors": {
+    "Shahrak Gharb (شهرک غرب)": "timeout",
+    "Velenjak (ولنجک)": "timeout"
+  },
+  "last_checked": "2026-07-27T17:11:40.790127+00:00"
 }
