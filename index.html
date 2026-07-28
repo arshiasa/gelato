@@ -26,15 +26,17 @@
             -webkit-text-fill-color: initial;
         }
         html {
-            background-color: #0c0a09 !important;
-            color-scheme: light dark !important;
+            background-color: #ffffff !important;
+            color-scheme: light !important;
         }
         body {
             font-family: 'Vazirmatn', sans-serif;
-            background-color: transparent !important;
-            background-image: none !important;
+            background-color: #fff8f0 !important;
+            background-image: linear-gradient(160deg, #fff8f0 0%, #fff4e6 50%, #fdeff4 100%) !important;
+            background-attachment: fixed !important;
             color: #5a4538 !important;
             overflow-x: hidden;
+            color-scheme: light !important;
             margin: 0;
             min-height: 100%;
         }
@@ -73,12 +75,8 @@
         #bg-canvas {
             position: fixed; top: 0; left: 0;
             width: 100vw; height: 100vh;
-            z-index: 0; pointer-events: none;
-        }
-
-        header, main, footer {
-            position: relative;
-            z-index: 10;
+            z-index: -10; pointer-events: none;
+            background-color: transparent !important;
         }
 
         /* ── GPU Acceleration to stop mobile scroll jumping ── */
@@ -469,29 +467,6 @@
 
         ctx.clearRect(0, 0, W, H);
 
-        // 1. Light pastel linear gradient base fill
-        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-        bgGrad.addColorStop(0, '#fff8f0');
-        bgGrad.addColorStop(0.5, '#fff4e6');
-        bgGrad.addColorStop(1, '#fdeff4');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, W, H);
-
-        // 2. Soft peach & mint radial glows
-        const r1 = Math.max(W, H) * 0.5;
-        const grad1 = ctx.createRadialGradient(W * 0.15, H * 0.12, 0, W * 0.15, H * 0.12, r1);
-        grad1.addColorStop(0, 'rgba(253, 186, 116, 0.35)');
-        grad1.addColorStop(1, 'rgba(253, 186, 116, 0)');
-        ctx.fillStyle = grad1;
-        ctx.fillRect(0, 0, W, H);
-
-        const grad2 = ctx.createRadialGradient(W * 0.85, H * 0.85, 0, W * 0.85, H * 0.85, r1);
-        grad2.addColorStop(0, 'rgba(181, 234, 215, 0.35)');
-        grad2.addColorStop(1, 'rgba(181, 234, 215, 0)');
-        ctx.fillStyle = grad2;
-        ctx.fillRect(0, 0, W, H);
-
-        // 3. Floating bokeh circles
         bokeh.forEach(b => {
             let y = (b.y * H + time * b.speed * 100) % (H + 200) - 100;
             const rgrad = ctx.createRadialGradient(b.x * W, y, 0, b.x * W, y, b.r);
@@ -525,9 +500,6 @@
         const mascotCanvas = document.getElementById('mascot-canvas');
         if (!mascotCanvas) return;
 
-        const mascotImg = new Image();
-        let mascotLoaded = false;
-
         function drawMascot() {
             if (!mascotCanvas) return;
             const ctx = mascotCanvas.getContext('2d');
@@ -545,31 +517,82 @@
             }
 
             ctx.save();
-            ctx.scale(dpr, dpr);
-            ctx.clearRect(0, 0, w, h);
+            ctx.scale(targetW / 120, targetH / 120);
+            ctx.clearRect(0, 0, 120, 120);
 
-            if (mascotLoaded) {
-                ctx.drawImage(mascotImg, 0, 0, w, h);
-            }
+            // Radial Gradient for body (cx=60, cy=62, r=46 -> cx/cy offset)
+            const bodyGrad = ctx.createRadialGradient(60, 50, 0, 60, 50, 46);
+            bodyGrad.addColorStop(0, '#ffd166');
+            bodyGrad.addColorStop(1, '#ffb703');
+
+            // Circle body
+            ctx.beginPath();
+            ctx.arc(60, 62, 46, 0, Math.PI * 2);
+            ctx.fillStyle = bodyGrad;
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+
+            // Highlight curve
+            ctx.beginPath();
+            ctx.moveTo(28, 42);
+            ctx.quadraticCurveTo(60, 18, 92, 42);
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Cheeks
+            ctx.save();
+            ctx.globalAlpha = 0.8;
+            ctx.fillStyle = '#ff8fa3';
+            // Left
+            ctx.beginPath();
+            ctx.ellipse(36, 72, 9, 7, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Right
+            ctx.beginPath();
+            ctx.ellipse(84, 72, 9, 7, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // Eyes
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#7a5c44';
+            ctx.lineCap = 'round';
+            
+            ctx.beginPath();
+            ctx.moveTo(38, 58);
+            ctx.quadraticCurveTo(44, 50, 50, 58);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(70, 58);
+            ctx.quadraticCurveTo(76, 50, 82, 58);
+            ctx.stroke();
+
+            // Mouth
+            ctx.beginPath();
+            ctx.moveTo(52, 70);
+            ctx.quadraticCurveTo(60, 84, 68, 70);
+            ctx.fillStyle = '#e63946';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#7a5c44';
+            ctx.stroke();
+
+            // Sparkle emoji
+            ctx.font = '20px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('✨', 88, 28);
+
             ctx.restore();
         }
 
-        mascotImg.onload = () => {
-            mascotLoaded = true;
-            drawMascot();
-        };
-
-        let assetPath = 'assets/mascot.svg';
-        if (window.location.pathname.includes('/scratch/')) {
-            assetPath = '../assets/mascot.svg';
-        }
-        mascotImg.src = assetPath;
-
         window.addEventListener('resize', drawMascot);
-        if (mascotImg.complete && mascotImg.naturalWidth !== 0) {
-            mascotLoaded = true;
-            drawMascot();
-        }
+        drawMascot();
     })();
     </script>
 </body>
