@@ -43,17 +43,32 @@
         .font-hand { font-family: 'Caveat', cursive; }
 
         /* ── Mascot Light-Mode Lock (Bypasses Dark/Night Mode Inversion) ── */
-        .mascot-box, .mascot-box * {
+        .mascot-box, .mascot-box *, .mascot-img {
             color-scheme: light only !important;
             forced-color-adjust: none !important;
             -webkit-forced-color-adjust: none !important;
             isolation: isolate;
         }
-        .mascot-svg {
-            color-scheme: light only !important;
-            forced-color-adjust: none !important;
-            -webkit-forced-color-adjust: none !important;
+        .mascot-img {
             filter: drop-shadow(0 10px 15px rgba(218, 165, 105, 0.3)) !important;
+            -webkit-filter: drop-shadow(0 10px 15px rgba(218, 165, 105, 0.3)) !important;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .mascot-box, .mascot-img {
+                filter: none !important;
+                -webkit-filter: none !important;
+            }
+            .speech-bubble {
+                background: #ffffff !important;
+                color: #5a4538 !important;
+            }
+            .speech-bubble * {
+                color: #5a4538 !important;
+            }
+            .speech-bubble::after {
+                background: #ffffff !important;
+            }
         }
 
         #bg-canvas {
@@ -248,24 +263,9 @@
         <!-- Mascot + Speech Bubble -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12">
             
-            <!-- SVG Mascot (GPU fixed + Light Mode Locked) -->
+            <!-- Mascot Image Asset (Immune to Forced Dark Mode Inversion) -->
             <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0 anim-bob gpu-fix mascot-box">
-                <svg viewBox="0 0 120 120" class="w-full h-full mascot-svg" style="color-scheme: light only; forced-color-adjust: none; -webkit-forced-color-adjust: none;">
-                    <defs>
-                        <radialGradient id="bodyGrad" cx="50%" cy="40%" r="60%">
-                            <stop offset="0%" stop-color="#ffd166"/>
-                            <stop offset="100%" stop-color="#ffb703"/>
-                        </radialGradient>
-                    </defs>
-                    <circle cx="60" cy="62" r="46" fill="url(#bodyGrad)" stroke="#fff" stroke-width="4"/>
-                    <path d="M28 42 Q 60 18 92 42" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.6"/>
-                    <ellipse cx="36" cy="72" rx="9" ry="7" fill="#ff8fa3" opacity="0.8"/>
-                    <ellipse cx="84" cy="72" rx="9" ry="7" fill="#ff8fa3" opacity="0.8"/>
-                    <path d="M 38 58 Q 44 50 50 58" fill="none" stroke="#7a5c44" stroke-width="4" stroke-linecap="round"/>
-                    <path d="M 70 58 Q 76 50 82 58" fill="none" stroke="#7a5c44" stroke-width="4" stroke-linecap="round"/>
-                    <path d="M 52 70 Q 60 84 68 70" fill="#e63946" stroke="#7a5c44" stroke-width="3" stroke-linecap="round"/>
-                    <text x="88" y="28" font-size="20" class="anim-sway gpu-fix" style="transform-origin:88px 28px">✨</text>
-                </svg>
+                <img src="../assets/mascot.svg" alt="پشن‌کوچولو" class="w-full h-full mascot-img object-contain" style="color-scheme: light only; forced-color-adjust: none; -webkit-forced-color-adjust: none;">
             </div>
 
             <!-- Speech Bubble -->
