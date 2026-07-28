@@ -26,37 +26,35 @@
             -webkit-text-fill-color: initial;
         }
         html {
-            background-color: #ffffff !important;
-            color-scheme: light !important;
+            background-color: #0c0a09 !important;
+            color-scheme: light dark !important;
         }
         body {
             font-family: 'Vazirmatn', sans-serif;
-            background-color: #fff8f0 !important;
-            background-image: linear-gradient(160deg, #fff8f0 0%, #fff4e6 50%, #fdeff4 100%) !important;
-            background-attachment: fixed !important;
+            background-color: transparent !important;
+            background-image: none !important;
             color: #5a4538 !important;
             overflow-x: hidden;
-            color-scheme: light !important;
             margin: 0;
             min-height: 100%;
         }
         .font-lalezar { font-family: 'Lalezar', cursive; }
         .font-hand { font-family: 'Caveat', cursive; }
 
-        /* ── Mascot Light-Mode Lock (Bypasses Dark/Night Mode Inversion) ── */
-        .mascot-box, .mascot-box *, .mascot-img {
+        /* ── Mascot Light-Mode Lock (Bypasses Dark/Night Mode Inversion via Canvas) ── */
+        .mascot-box, .mascot-box *, .mascot-img, #mascot-canvas {
             color-scheme: light only !important;
             forced-color-adjust: none !important;
             -webkit-forced-color-adjust: none !important;
             isolation: isolate;
         }
-        .mascot-img {
+        .mascot-img, #mascot-canvas {
             filter: drop-shadow(0 10px 15px rgba(218, 165, 105, 0.3)) !important;
             -webkit-filter: drop-shadow(0 10px 15px rgba(218, 165, 105, 0.3)) !important;
         }
 
         @media (prefers-color-scheme: dark) {
-            .mascot-box, .mascot-img {
+            .mascot-box, .mascot-img, #mascot-canvas {
                 filter: none !important;
                 -webkit-filter: none !important;
             }
@@ -75,8 +73,12 @@
         #bg-canvas {
             position: fixed; top: 0; left: 0;
             width: 100vw; height: 100vh;
-            z-index: -10; pointer-events: none;
-            background-color: transparent !important;
+            z-index: 0; pointer-events: none;
+        }
+
+        header, main, footer {
+            position: relative;
+            z-index: 10;
         }
 
         /* ── GPU Acceleration to stop mobile scroll jumping ── */
@@ -264,9 +266,9 @@
         <!-- Mascot + Speech Bubble -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12">
             
-            <!-- Mascot Image Asset (Immune to Forced Dark Mode Inversion) -->
+            <!-- Mascot Canvas Asset (Bypasses Mobile Forced Dark Mode Inversion) -->
             <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0 anim-bob gpu-fix mascot-box">
-                <img src="../assets/mascot.svg" alt="پشن‌کوچولو" class="w-full h-full mascot-img object-contain" style="color-scheme: light only; forced-color-adjust: none; -webkit-forced-color-adjust: none;">
+                <canvas id="mascot-canvas" aria-label="پشن‌کوچولو" role="img" class="w-full h-full mascot-img object-contain" style="color-scheme: light only; forced-color-adjust: none; -webkit-forced-color-adjust: none;"></canvas>
             </div>
 
             <!-- Speech Bubble -->
@@ -466,10 +468,31 @@
         canvas.height = window.innerHeight;
         const W = canvas.width, H = canvas.height;
 
-        // Clear canvas instead of drawing gradient (let CSS body handle the background)
         ctx.clearRect(0, 0, W, H);
 
-        // Draw floating bokeh only
+        // 1. Light pastel linear gradient base fill
+        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+        bgGrad.addColorStop(0, '#fff8f0');
+        bgGrad.addColorStop(0.5, '#fff4e6');
+        bgGrad.addColorStop(1, '#fdeff4');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        // 2. Soft peach & mint radial glows
+        const r1 = Math.max(W, H) * 0.5;
+        const grad1 = ctx.createRadialGradient(W * 0.15, H * 0.12, 0, W * 0.15, H * 0.12, r1);
+        grad1.addColorStop(0, 'rgba(253, 186, 116, 0.35)');
+        grad1.addColorStop(1, 'rgba(253, 186, 116, 0)');
+        ctx.fillStyle = grad1;
+        ctx.fillRect(0, 0, W, H);
+
+        const grad2 = ctx.createRadialGradient(W * 0.85, H * 0.85, 0, W * 0.85, H * 0.85, r1);
+        grad2.addColorStop(0, 'rgba(181, 234, 215, 0.35)');
+        grad2.addColorStop(1, 'rgba(181, 234, 215, 0)');
+        ctx.fillStyle = grad2;
+        ctx.fillRect(0, 0, W, H);
+
+        // 3. Floating bokeh circles
         bokeh.forEach(b => {
             let y = (b.y * H + time * b.speed * 100) % (H + 200) - 100;
             const rgrad = ctx.createRadialGradient(b.x * W, y, 0, b.x * W, y, b.r);
@@ -493,8 +516,61 @@
     (function lockEmojiHeight() {
         const el = document.querySelector('.emoji-layer');
         if (!el) return;
+        // Capture the initial innerHeight (before any URL bar changes)
         const h = window.innerHeight;
         el.style.height = h + 'px';
+    })();
+
+    // ─── Canvas Mascot Rendering (Bypasses Forced Dark Mode Inversion) ────────
+    (function initMascotCanvas() {
+        const mascotCanvas = document.getElementById('mascot-canvas');
+        if (!mascotCanvas) return;
+
+        const mascotImg = new Image();
+        let mascotLoaded = false;
+
+        function drawMascot() {
+            if (!mascotCanvas) return;
+            const ctx = mascotCanvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+
+            const rect = mascotCanvas.getBoundingClientRect();
+            const w = rect.width || 128;
+            const h = rect.height || 128;
+
+            const targetW = Math.floor(w * dpr);
+            const targetH = Math.floor(h * dpr);
+            if (mascotCanvas.width !== targetW || mascotCanvas.height !== targetH) {
+                mascotCanvas.width = targetW;
+                mascotCanvas.height = targetH;
+            }
+
+            ctx.save();
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, w, h);
+
+            if (mascotLoaded) {
+                ctx.drawImage(mascotImg, 0, 0, w, h);
+            }
+            ctx.restore();
+        }
+
+        mascotImg.onload = () => {
+            mascotLoaded = true;
+            drawMascot();
+        };
+
+        let assetPath = 'assets/mascot.svg';
+        if (window.location.pathname.includes('/scratch/')) {
+            assetPath = '../assets/mascot.svg';
+        }
+        mascotImg.src = assetPath;
+
+        window.addEventListener('resize', drawMascot);
+        if (mascotImg.complete && mascotImg.naturalWidth !== 0) {
+            mascotLoaded = true;
+            drawMascot();
+        }
     })();
     </script>
 </body>
