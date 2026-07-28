@@ -105,6 +105,7 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False):
 
     for branch_name, branch_path in branches:
         target_url = arvan_worker_url.rstrip('/') + branch_path + "?json=true"
+        branch_url = "http://order.gelatohouse.ir" + branch_path
         print(f"Fetching: {target_url}")
         
         req = urllib.request.Request(
@@ -127,7 +128,7 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False):
                     current_errors[branch_name] = error
                     
                     icon = "⚠️"
-                    summary_lines.append(f"{icon} <b>{branch_name}</b>: خطا در به‌روزرسانی ({error})")
+                    summary_lines.append(f"{icon} <b>{branch_name}</b>: خطا در به‌روزرسانی ({error})\n🔗 <a href='{branch_url}'>سفارش آنلاین</a>")
                 else:
                     status_str = "Available (موجود)" if is_available else "Not Available (ناموجود)"
                     icon = "🟢" if is_available else "🔴"
@@ -139,7 +140,7 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False):
                     if prev_available != is_available:
                         changes.append((branch_name, is_available))
                         
-                    summary_lines.append(f"{icon} <b>{branch_name}</b>: {'<b>موجود (Available)</b>' if is_available else 'ناموجود (Out of stock)'}")
+                    summary_lines.append(f"{icon} <b>{branch_name}</b>: {'<b>موجود (Available)</b>' if is_available else 'ناموجود (Out of stock)'}\n🔗 <a href='{branch_url}'>سفارش آنلاین</a>")
                     
         except Exception as e:
             print(f"[{branch_name}] ⚠️ Connection to worker failed: {e}")
@@ -147,7 +148,7 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False):
             current_errors[branch_name] = str(e)
             
             icon = "⚠️"
-            summary_lines.append(f"{icon} <b>{branch_name}</b>: خطا در ارتباط با پروکسی ({e})")
+            summary_lines.append(f"{icon} <b>{branch_name}</b>: خطا در ارتباط با پروکسی ({e})\n🔗 <a href='{branch_url}'>سفارش آنلاین</a>")
 
     # Save to local file system
     save_data = {
