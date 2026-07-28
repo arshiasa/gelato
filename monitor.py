@@ -3,7 +3,6 @@ import sys
 import json
 import argparse
 import urllib.request
-import urllib.parse
 import datetime
 
 # Set UTF-8 encoding for standard output
@@ -11,25 +10,17 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 STATE_FILE = 'state.json'
 
-BRANCHES = {
-    'Shahrak Gharb (شهرک غرب)': 'http://order.gelatohouse.ir/order/gelatohouse',
-    'Velenjak (ولنجک)': 'http://order.gelatohouse.ir/order/gelato-house'
-}
-
-TARGET_KEYWORD = 'پشن'
-VALIDATION_KEYWORD = 'ژلاتو'
-
 def load_state():
     if os.path.exists(STATE_FILE):
         try:
             with open(STATE_FILE, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 if "status" in data:
-                    return data["status"]
-                return data
+                    return data
+                return {"status": data, "errors": {}}
         except Exception as e:
             print(f"Error loading state.json: {e}")
-    return {}
+    return {"status": {}, "errors": {}}
 
 def save_state(state):
     try:
@@ -37,38 +28,6 @@ def save_state(state):
             json.dump(state, f, ensure_ascii=False, indent=2)
     except Exception as e:
         print(f"Error saving state.json: {e}")
-
-def check_branch_online(url, local_file=None):
-    if local_file and os.path.exists(local_file):
-        with open(local_file, 'r', encoding='utf-8', errors='ignore') as f:
-            html = f.read()
-        return TARGET_KEYWORD in html, len(html)
-
-    arvan_worker_url = os.getenv('ARVAN_WORKER_URL')
-    req_url = url
-    if arvan_worker_url:
-        parsed = urllib.parse.urlparse(url)
-        req_url = arvan_worker_url.rstrip('/') + parsed.path + ('?' + parsed.query if parsed.query else '')
-        print(f"Routing request through Arvan Worker: {req_url}")
-
-    req = urllib.request.Request(
-        req_url,
-        headers={
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'fa,en;q=0.9'
-        }
-    )
-    
-    try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            html = resp.read().decode('utf-8', errors='ignore')
-            if VALIDATION_KEYWORD not in html:
-                raise Exception("Validation keyword 'ژلاتو' missing from response HTML")
-            return TARGET_KEYWORD in html, len(html)
-    except Exception as e:
-        print(f"Failed to fetch {url} (routed: {req_url != url}): {e}")
-        return None, 0
 
 def send_telegram_alert(bot_token, chat_ids, message):
     if not bot_token:
@@ -117,51 +76,82 @@ def send_telegram_alert(bot_token, chat_ids, message):
 
     return success_count > 0
 
-def run_check(bot_token=None, chat_ids=None, force_notify=False, mock_files=False):
+def run_check(bot_token=None, chat_ids=None, force_notify=False):
     bot_token = bot_token or os.getenv('TELEGRAM_BOT_TOKEN')
     
     if not chat_ids and os.getenv('TELEGRAM_CHAT_ID'):
         chat_ids = [c.strip() for c in os.getenv('TELEGRAM_CHAT_ID').split(',') if c.strip()]
 
-    previous_state = load_state()
-    current_state = {}
+    previous_data = load_state()
+    previous_status = previous_data.get("status", {})
+
+    arvan_worker_url = os.getenv('ARVAN_WORKER_URL')
+    if not arvan_worker_url:
+        print("Error: ARVAN_WORKER_URL env variable is not set!")
+        sys.exit(1)
+
+    # Branches to check by querying their specific sub-urls on the worker
+    branches = [
+        ('Shahrak Gharb (شهرک غرب)', '/order/gelatohouse'),
+        ('Velenjak (ولنجک)', '/order/gelato-house')
+    ]
+
+    current_status = {}
     current_errors = {}
     changes = []
     summary_lines = []
 
-    print("Checking Gelato House Passion Fruit availability...")
+    print("Checking Gelato House Passion Fruit availability via Arvan Worker sub-URLs...")
 
-    for branch_name, branch_url in BRANCHES.items():
-        mock_file = None
-        if mock_files:
-            if 'Shahrak' in branch_name:
-                mock_file = 'd60b82ab-3578-4ef5-b6e7-d11a7f8a2e4a.htm'
-            else:
-                mock_file = '055ac9b8-3dc6-4b91-90ef-e10ecfb8d6f0.htm'
+    for branch_name, branch_path in branches:
+        target_url = arvan_worker_url.rstrip('/') + branch_path + "?json=true"
+        print(f"Fetching: {target_url}")
+        
+        req = urllib.request.Request(
+            target_url,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        )
 
-        is_available, html_len = check_branch_online(branch_url, local_file=mock_file)
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                
+                is_available = data.get("available", False)
+                error = data.get("error")
+                
+                if error:
+                    print(f"[{branch_name}] ⚠️ Worker reported error: {error}")
+                    current_status[branch_name] = previous_status.get(branch_name, False)
+                    current_errors[branch_name] = error
+                    
+                    icon = "⚠️"
+                    summary_lines.append(f"{icon} <b>{branch_name}</b>: خطا در به‌روزرسانی ({error})")
+                else:
+                    status_str = "Available (موجود)" if is_available else "Not Available (ناموجود)"
+                    icon = "🟢" if is_available else "🔴"
+                    print(f"[{branch_name}] {icon} {status_str}")
+                    
+                    current_status[branch_name] = is_available
+                    prev_available = previous_status.get(branch_name)
+                    
+                    if prev_available != is_available:
+                        changes.append((branch_name, is_available))
+                        
+                    summary_lines.append(f"{icon} <b>{branch_name}</b>: {'<b>موجود (Available)</b>' if is_available else 'ناموجود (Out of stock)'}")
+                    
+        except Exception as e:
+            print(f"[{branch_name}] ⚠️ Connection to worker failed: {e}")
+            current_status[branch_name] = previous_status.get(branch_name, False)
+            current_errors[branch_name] = str(e)
+            
+            icon = "⚠️"
+            summary_lines.append(f"{icon} <b>{branch_name}</b>: خطا در ارتباط با پروکسی ({e})")
 
-        if is_available is None:
-            print(f"[{branch_name}] ⚠️ Could not check branch (Network Error/Timeout).")
-            # Fallback to previous availability status in case of network failure
-            current_state[branch_name] = previous_state.get(branch_name, False)
-            current_errors[branch_name] = "timeout"
-            continue
-
-        status_str = "Available (موجود)" if is_available else "Not Available (ناموجود)"
-        icon = "🟢" if is_available else "🔴"
-        print(f"[{branch_name}] {icon} {status_str} (HTML size: {html_len} bytes)")
-
-        current_state[branch_name] = is_available
-        prev_available = previous_state.get(branch_name)
-
-        if prev_available != is_available:
-            changes.append((branch_name, is_available))
-
-        summary_lines.append(f"{icon} <b>{branch_name}</b>: {'<b>موجود (Available)</b>' if is_available else 'ناموجود (Out of stock)'}\n🔗 <a href='{branch_url}'>سفارش آنلاین</a>")
-
+    # Save to local file system
     save_data = {
-        "status": current_state,
+        "status": current_status,
         "errors": current_errors,
         "last_checked": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }
@@ -178,11 +168,10 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False, mock_files=Fals
         print("\nNo status changes detected. Skipping Telegram alert.")
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Gelato House Availability Checker')
+    parser = argparse.ArgumentParser(description='Gelato House Status Synchronizer')
     parser.add_argument('--token', default=os.getenv('TELEGRAM_BOT_TOKEN'), help='Telegram Bot Token')
     parser.add_argument('--chats', nargs='+', default=None, help='Telegram Chat IDs')
     parser.add_argument('--force-notify', action='store_true', help='Force send notification regardless of state change')
-    parser.add_argument('--mock', action='store_true', help='Use offline mock HTML files for testing')
 
     args = parser.parse_args()
-    run_check(bot_token=args.token, chat_ids=args.chats, force_notify=args.force_notify, mock_files=args.mock)
+    run_check(bot_token=args.token, chat_ids=args.chats, force_notify=args.force_notify)

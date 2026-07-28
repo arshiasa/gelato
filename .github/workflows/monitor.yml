@@ -22,6 +22,8 @@ jobs:
           python-version: '3.10'
 
       - name: Run Monitor Script
+        env:
+          ARVAN_WORKER_URL: ${{ secrets.ARVAN_WORKER_URL }}
         run: python monitor.py --token "${{ secrets.TELEGRAM_BOT_TOKEN }}" --chats "${{ secrets.TELEGRAM_CHAT_ID }}"
 
       - name: Commit and Push state.json
@@ -29,5 +31,4 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add state.json
-          # Only commit if state.json has changed
           git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update gelato status [skip ci]" && git push)
