@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💛 پشن فروت یاب 🍨</title>
     
-    <!-- ── STOP Dark Mode / Night Mode Inversion ── -->
-    <meta name="color-scheme" content="light only">
+    <!-- ── STOP Dark Mode / Night Mode Inversion (.geminirules Guardrail) ── -->
+    <meta name="color-scheme" content="light">
     <meta name="supported-color-schemes" content="light">
     <meta name="theme-color" content="#fff8f0">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -16,26 +16,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Lalezar&family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* ── Force Light Mode & Fix Mobile Bugs ── */
+        /* ── Force Light Mode & Fix Mobile Bugs (.geminirules) ── */
+        :root {
+            color-scheme: light;
+        }
         *, *::before, *::after { 
             box-sizing: border-box;
-            color-scheme: light only !important;
             forced-color-adjust: none !important;
             -webkit-text-fill-color: initial;
         }
         html {
             background-color: #ffffff !important;
-            color-scheme: light only !important;
+            color-scheme: light !important;
         }
         body {
             font-family: 'Vazirmatn', sans-serif;
-            /* CSS Background instead of Canvas to bypass Samsung inversion */
             background-color: #fff8f0 !important;
             background-image: linear-gradient(160deg, #fff8f0 0%, #fff4e6 50%, #fdeff4 100%) !important;
             background-attachment: fixed !important;
             color: #5a4538 !important;
             overflow-x: hidden;
-            color-scheme: light only !important;
+            color-scheme: light !important;
             margin: 0;
             min-height: 100%;
         }
