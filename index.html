@@ -43,20 +43,20 @@
         .font-lalezar { font-family: 'Lalezar', cursive; }
         .font-hand { font-family: 'Caveat', cursive; }
 
-        /* ── Mascot Light-Mode Lock (Bypasses Dark/Night Mode Inversion) ── */
-        .mascot-box, .mascot-box *, .mascot-img {
+        /* ── Mascot Light-Mode Lock (Bypasses Dark/Night Mode Inversion via Canvas) ── */
+        .mascot-box, .mascot-box *, .mascot-img, #mascot-canvas {
             color-scheme: light only !important;
             forced-color-adjust: none !important;
             -webkit-forced-color-adjust: none !important;
             isolation: isolate;
         }
-        .mascot-img {
+        .mascot-img, #mascot-canvas {
             filter: drop-shadow(0 10px 15px rgba(218, 165, 105, 0.3)) !important;
             -webkit-filter: drop-shadow(0 10px 15px rgba(218, 165, 105, 0.3)) !important;
         }
 
         @media (prefers-color-scheme: dark) {
-            .mascot-box, .mascot-img {
+            .mascot-box, .mascot-img, #mascot-canvas {
                 filter: none !important;
                 -webkit-filter: none !important;
             }
@@ -264,9 +264,9 @@
         <!-- Mascot + Speech Bubble -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12">
             
-            <!-- Mascot Image Asset (Immune to Forced Dark Mode Inversion) -->
+            <!-- Mascot Canvas Asset (Bypasses Mobile Forced Dark Mode Inversion) -->
             <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0 anim-bob gpu-fix mascot-box">
-                <img src="assets/mascot.svg" alt="پشن‌کوچولو" class="w-full h-full mascot-img object-contain" style="color-scheme: light only; forced-color-adjust: none; -webkit-forced-color-adjust: none;">
+                <canvas id="mascot-canvas" aria-label="پشن‌کوچولو" role="img" class="w-full h-full mascot-img object-contain" style="color-scheme: light only; forced-color-adjust: none; -webkit-forced-color-adjust: none;"></canvas>
             </div>
 
             <!-- Speech Bubble -->
@@ -493,6 +493,58 @@
         // Capture the initial innerHeight (before any URL bar changes)
         const h = window.innerHeight;
         el.style.height = h + 'px';
+    })();
+
+    // ─── Canvas Mascot Rendering (Bypasses Forced Dark Mode Inversion) ────────
+    (function initMascotCanvas() {
+        const mascotCanvas = document.getElementById('mascot-canvas');
+        if (!mascotCanvas) return;
+
+        const mascotImg = new Image();
+        let mascotLoaded = false;
+
+        function drawMascot() {
+            if (!mascotCanvas) return;
+            const ctx = mascotCanvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+
+            const rect = mascotCanvas.getBoundingClientRect();
+            const w = rect.width || 128;
+            const h = rect.height || 128;
+
+            const targetW = Math.floor(w * dpr);
+            const targetH = Math.floor(h * dpr);
+            if (mascotCanvas.width !== targetW || mascotCanvas.height !== targetH) {
+                mascotCanvas.width = targetW;
+                mascotCanvas.height = targetH;
+            }
+
+            ctx.save();
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, w, h);
+
+            if (mascotLoaded) {
+                ctx.drawImage(mascotImg, 0, 0, w, h);
+            }
+            ctx.restore();
+        }
+
+        mascotImg.onload = () => {
+            mascotLoaded = true;
+            drawMascot();
+        };
+
+        let assetPath = 'assets/mascot.svg';
+        if (window.location.pathname.includes('/scratch/')) {
+            assetPath = '../assets/mascot.svg';
+        }
+        mascotImg.src = assetPath;
+
+        window.addEventListener('resize', drawMascot);
+        if (mascotImg.complete && mascotImg.naturalWidth !== 0) {
+            mascotLoaded = true;
+            drawMascot();
+        }
     })();
     </script>
 </body>
