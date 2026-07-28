@@ -59,12 +59,14 @@
         /* ── Fix Mobile Scroll Jump for Floating Layer ── */
         .emoji-layer {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0; left: 0; width: 100%;
+            /* Height set by JS on load to avoid URL-bar resize jumps */
+            height: 100vh;
+            height: 100svh; /* small viewport = never changes */
             pointer-events: none;
             z-index: 0;
             overflow: hidden;
-            transform: translate3d(0, 0, 0);
-            -webkit-transform: translate3d(0, 0, 0);
+            contain: strict;
         }
 
         /* ── Soft Kawaii Card ── */
@@ -400,7 +402,7 @@
                 if (isAvailable) {
                     badge.className = "inline-flex items-center gap-1.5 px-4 py-1.5 kawaii-badge text-xs bg-emerald-100 text-emerald-700";
                     badge.innerHTML = '🌸 موجود و آماده!';
-                    desc.innerHTML = `🎉 <span class="text-amber-600 font-extrabold">اسکوپ سوربتوی پشن فروت</span><br>توی منوی ${shortName} موجوده! همین الان سفارش بده 🥭`;
+                    desc.innerHTML = `🎉 <span class="text-amber-600 font-extrabold">اسکوپ سوربتوی پشن فروت</span><br>توی منوی ${shortName} موجوده! 🥭`;
                     
                     card.classList.add('card-glow');
                     card.style.background = "linear-gradient(160deg, rgba(255, 255, 255, 0.85) 50%, rgba(220, 252, 231, 0.75) 100%)";
@@ -471,6 +473,14 @@
     }
     window.addEventListener('resize', drawBackground);
     requestAnimationFrame(animate);
+
+    // ─── Lock emoji layer height to prevent mobile URL-bar jumps ──────────
+    (function lockEmojiHeight() {
+        const el = document.querySelector('.emoji-layer');
+        if (!el) return;
+        const h = window.innerHeight;
+        el.style.height = h + 'px';
+    })();
     </script>
 </body>
 </html>
