@@ -26,17 +26,15 @@
             -webkit-text-fill-color: initial;
         }
         html {
-            background-color: #ffffff !important;
-            color-scheme: light !important;
+            background-color: #0c0a09 !important;
+            color-scheme: light dark !important;
         }
         body {
             font-family: 'Vazirmatn', sans-serif;
-            background-color: #fff8f0 !important;
-            background-image: linear-gradient(160deg, #fff8f0 0%, #fff4e6 50%, #fdeff4 100%) !important;
-            background-attachment: fixed !important;
+            background-color: transparent !important;
+            background-image: none !important;
             color: #5a4538 !important;
             overflow-x: hidden;
-            color-scheme: light !important;
             margin: 0;
             min-height: 100%;
         }
@@ -75,8 +73,12 @@
         #bg-canvas {
             position: fixed; top: 0; left: 0;
             width: 100vw; height: 100vh;
-            z-index: -10; pointer-events: none;
-            background-color: transparent !important;
+            z-index: 0; pointer-events: none;
+        }
+
+        header, main, footer {
+            position: relative;
+            z-index: 10;
         }
 
         /* ── GPU Acceleration to stop mobile scroll jumping ── */
@@ -466,10 +468,31 @@
         canvas.height = window.innerHeight;
         const W = canvas.width, H = canvas.height;
 
-        // Clear canvas instead of drawing gradient (let CSS body handle the background)
         ctx.clearRect(0, 0, W, H);
 
-        // Draw floating bokeh only
+        // 1. Light pastel linear gradient base fill
+        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+        bgGrad.addColorStop(0, '#fff8f0');
+        bgGrad.addColorStop(0.5, '#fff4e6');
+        bgGrad.addColorStop(1, '#fdeff4');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        // 2. Soft peach & mint radial glows
+        const r1 = Math.max(W, H) * 0.5;
+        const grad1 = ctx.createRadialGradient(W * 0.15, H * 0.12, 0, W * 0.15, H * 0.12, r1);
+        grad1.addColorStop(0, 'rgba(253, 186, 116, 0.35)');
+        grad1.addColorStop(1, 'rgba(253, 186, 116, 0)');
+        ctx.fillStyle = grad1;
+        ctx.fillRect(0, 0, W, H);
+
+        const grad2 = ctx.createRadialGradient(W * 0.85, H * 0.85, 0, W * 0.85, H * 0.85, r1);
+        grad2.addColorStop(0, 'rgba(181, 234, 215, 0.35)');
+        grad2.addColorStop(1, 'rgba(181, 234, 215, 0)');
+        ctx.fillStyle = grad2;
+        ctx.fillRect(0, 0, W, H);
+
+        // 3. Floating bokeh circles
         bokeh.forEach(b => {
             let y = (b.y * H + time * b.speed * 100) % (H + 200) - 100;
             const rgrad = ctx.createRadialGradient(b.x * W, y, 0, b.x * W, y, b.r);

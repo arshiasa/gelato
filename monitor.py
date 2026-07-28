@@ -115,42 +115,53 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False):
             }
         )
 
-        try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                data = json.loads(resp.read().decode('utf-8'))
+        data = None
+        last_exception = None
+
+        for attempt in range(2):
+            try:
+                with urllib.request.urlopen(req, timeout=20) as resp:
+                    data = json.loads(resp.read().decode('utf-8'))
+                    break
+            except Exception as e:
+                last_exception = e
+                print(f"[{display_name}] Attempt {attempt + 1} failed: {e}")
+                if attempt == 0:
+                    import time
+                    time.sleep(2)
+
+        if data:
+            is_available = data.get("available", False)
+            error = data.get("error")
+            
+            if error:
+                print(f"[{display_name}] ⚠️ Worker reported error: {error}")
+                current_status[json_key] = previous_status.get(json_key, False)
+                current_errors[json_key] = error
                 
-                is_available = data.get("available", False)
-                error = data.get("error")
+                icon = "⚠️"
+                summary_lines.append(f"{icon} <b>{display_name}</b>: خطا در به‌روزرسانی ({error})\n🔗 <a href='{branch_url}'>مشاهده منو ↗</a>")
+            else:
+                status_str = "Available (موجود)" if is_available else "Not Available (ناموجود)"
+                icon = "🌸" if is_available else "💤"
+                print(f"[{display_name}] {icon} {status_str}")
                 
-                if error:
-                    print(f"[{display_name}] ⚠️ Worker reported error: {error}")
-                    current_status[json_key] = previous_status.get(json_key, False)
-                    current_errors[json_key] = error
+                current_status[json_key] = is_available
+                prev_available = previous_status.get(json_key)
+                
+                if prev_available != is_available:
+                    changes.append((display_name, is_available))
                     
-                    icon = "⚠️"
-                    summary_lines.append(f"{icon} <b>{display_name}</b>: خطا در به‌روزرسانی ({error})\n🔗 <a href='{branch_url}'>مشاهده منو ↗</a>")
-                else:
-                    status_str = "Available (موجود)" if is_available else "Not Available (ناموجود)"
-                    icon = "🌸" if is_available else "💤"
-                    print(f"[{display_name}] {icon} {status_str}")
-                    
-                    current_status[json_key] = is_available
-                    prev_available = previous_status.get(json_key)
-                    
-                    if prev_available != is_available:
-                        changes.append((display_name, is_available))
-                        
-                    status_text = "<b>موجود و آماده سفارش! 🎉</b>" if is_available else "<b>فعلاً ناموجوده 😴</b>"
-                    btn_text = "ثبت سفارش ⚡" if is_available else "مشاهده منو ↗"
-                    summary_lines.append(f"{icon} <b>{display_name}</b>: {status_text}\n🔗 <a href='{branch_url}'>{btn_text}</a>")
-                    
-        except Exception as e:
-            print(f"[{display_name}] ⚠️ Connection to worker failed: {e}")
+                status_text = "<b>موجود و آماده سفارش! 🎉</b>" if is_available else "<b>فعلاً ناموجوده 😴</b>"
+                btn_text = "ثبت سفارش ⚡" if is_available else "مشاهده منو ↗"
+                summary_lines.append(f"{icon} <b>{display_name}</b>: {status_text}\n🔗 <a href='{branch_url}'>{btn_text}</a>")
+        else:
+            print(f"[{display_name}] ⚠️ Connection to worker failed: {last_exception}")
             current_status[json_key] = previous_status.get(json_key, False)
-            current_errors[json_key] = str(e)
+            current_errors[json_key] = str(last_exception)
             
             icon = "⚠️"
-            summary_lines.append(f"{icon} <b>{display_name}</b>: خطا در ارتباط با پروکسی ({e})\n🔗 <a href='{branch_url}'>مشاهده منو ↗</a>")
+            summary_lines.append(f"{icon} <b>{display_name}</b>: خطا در ارتباط با پروکسی ({last_exception})\n🔗 <a href='{branch_url}'>مشاهده منو ↗</a>")
 
     # Save to local file system
     save_data = {
