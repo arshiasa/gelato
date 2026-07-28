@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💛 پایش‌گر پشن فروت | ژلاتو هاوس 🍨</title>
+    <meta name="color-scheme" content="light only">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Lalezar&family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: transparent !important;
+            color: #3d2c1e;
+            overflow-x: hidden;
+            color-scheme: light only;
+            margin: 0;
+        }
+        .font-lalezar { font-family: 'Lalezar', cursive; }
+        .font-hand { font-family: 'Caveat', cursive; }
+
+        #bg-canvas {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -10; pointer-events: none;
+        }
+
+        /* ── Kawaii Card ── */
+        .kawaii-card {
+            background: #fffdfb;
+            border: 3px solid #5c3d2e;
+            border-radius: 28px;
+            box-shadow: 5px 5px 0px #5c3d2e;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: visible;
+        }
+        .kawaii-card:hover {
+            transform: translateY(-3px) rotate(0.4deg);
+            box-shadow: 7px 7px 0px #5c3d2e;
+        }
+
+        /* ── Washi Tape ── */
+        .washi-tape {
+            position: absolute; top: -13px; left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+            width: 100px; height: 24px;
+            border-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            z-index: 20;
+        }
+        .washi-peach  { background: linear-gradient(90deg, #ffd6a5, #ffcba4); }
+        .washi-mint   { background: linear-gradient(90deg, #b5ead7, #a0d9c1); }
+
+        /* ── Kawaii Button ── */
+        .kawaii-btn {
+            border: 2.5px solid #5c3d2e;
+            border-radius: 14px;
+            box-shadow: 3px 3px 0px #5c3d2e;
+            transition: all 0.12s ease;
+            font-weight: 800;
+        }
+        .kawaii-btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0px #5c3d2e; }
+        .kawaii-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px #5c3d2e; }
+
+        /* ── Kawaii Badge ── */
+        .kawaii-badge {
+            border: 2px solid #5c3d2e;
+            border-radius: 12px;
+            box-shadow: 2px 2px 0px #5c3d2e;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        /* ── Speech Bubble ── */
+        .speech-bubble {
+            position: relative;
+            background: #fffdfb;
+            border: 3px solid #5c3d2e;
+            border-radius: 22px;
+            box-shadow: 4px 4px 0px #5c3d2e;
+        }
+        .speech-bubble::after {
+            content: ''; position: absolute;
+            bottom: -11px; right: 34px;
+            border: 11px solid transparent;
+            border-top-color: #fffdfb;
+            border-bottom: 0;
+        }
+        .speech-bubble::before {
+            content: ''; position: absolute;
+            bottom: -15px; right: 32px;
+            border: 13px solid transparent;
+            border-top-color: #5c3d2e;
+            border-bottom: 0;
+        }
+
+        /* ── Animations ── */
+        @keyframes bob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
+        @keyframes sway { 0%,100% { transform: rotate(-4deg) scale(1); } 50% { transform: rotate(4deg) scale(1.05); } }
+        @keyframes drift {
+            0%   { transform: translate(0, 0) rotate(0deg); }
+            25%  { transform: translate(6px, -8px) rotate(5deg); }
+            50%  { transform: translate(-4px, -14px) rotate(-3deg); }
+            75%  { transform: translate(-8px, -6px) rotate(2deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        .anim-bob    { animation: bob 3.5s ease-in-out infinite; }
+        .anim-bob-d  { animation: bob 4s ease-in-out infinite 0.8s; }
+        .anim-sway   { animation: sway 2.5s ease-in-out infinite; }
+        .anim-drift-1 { animation: drift 8s ease-in-out infinite; }
+        .anim-drift-2 { animation: drift 10s ease-in-out infinite 2s; }
+        .anim-drift-3 { animation: drift 9s ease-in-out infinite 4s; }
+        .anim-drift-4 { animation: drift 11s ease-in-out infinite 1s; }
+        .anim-drift-5 { animation: drift 7s ease-in-out infinite 3s; }
+        .anim-drift-6 { animation: drift 12s ease-in-out infinite 5s; }
+
+        /* ── Glow for available card ── */
+        .card-glow {
+            box-shadow: 5px 5px 0px #5c3d2e, 0 0 30px rgba(16, 185, 129, 0.15);
+        }
+        .card-glow:hover {
+            box-shadow: 7px 7px 0px #5c3d2e, 0 0 40px rgba(16, 185, 129, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-5 sm:p-8">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- ─── Floating Sticker Doodles ─── -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="absolute top-[8%]  right-[6%]  text-4xl opacity-70 anim-drift-1">🥭</div>
+        <div class="absolute top-[14%] left-[8%]   text-4xl opacity-60 anim-drift-2">🌸</div>
+        <div class="absolute top-[55%] left-[3%]   text-5xl opacity-50 anim-drift-3">🍦</div>
+        <div class="absolute top-[48%] right-[4%]  text-5xl opacity-50 anim-drift-4">🍨</div>
+        <div class="absolute bottom-[12%] left-[10%] text-3xl opacity-55 anim-drift-5">✨</div>
+        <div class="absolute bottom-[8%] right-[12%] text-4xl opacity-55 anim-drift-6">💖</div>
+        <div class="absolute top-[5%]  left-[42%]  text-3xl opacity-45 anim-drift-2">⭐</div>
+        <div class="absolute top-[70%] right-[25%] text-3xl opacity-40 anim-drift-1">🍋</div>
+        <div class="absolute top-[30%] left-[20%]  text-3xl opacity-35 anim-drift-6">🧁</div>
+    </div>
+
+    <!-- ─── Header ─── -->
+    <header class="max-w-3xl w-full mx-auto flex items-center justify-between py-4 mb-8 relative z-10">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl border-[3px] border-[#5c3d2e] bg-gradient-to-br from-amber-200 to-orange-200 flex items-center justify-center text-2xl shadow-[3px_3px_0px_#5c3d2e] anim-bob">
+                🍧
+            </div>
+            <div>
+                <h1 class="text-xl sm:text-2xl font-lalezar text-[#3d2c1e]">پایش‌گر پشن فروت ژلاتو هاوس</h1>
+                <p class="text-stone-500 font-hand text-base sm:text-lg -mt-1 tracking-wide">Gelato House Passion Fruit Watcher</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- ─── Main ─── -->
+    <main class="max-w-3xl w-full mx-auto my-auto relative z-10">
+
+        <!-- Mascot + Speech Bubble -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-5 mb-10">
+            
+            <!-- SVG Mascot -->
+            <div class="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 anim-bob">
+                <svg viewBox="0 0 120 120" class="w-full h-full" style="filter: drop-shadow(3px 3px 0px #5c3d2e);">
+                    <!-- Body -->
+                    <circle cx="60" cy="62" r="46" fill="#ffb703" stroke="#5c3d2e" stroke-width="4"/>
+                    <!-- Highlight arc -->
+                    <path d="M28 42 Q 60 18 92 42" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.5"/>
+                    <!-- Cheeks -->
+                    <ellipse cx="36" cy="70" rx="8" ry="6" fill="#ffb7c5" opacity="0.7"/>
+                    <ellipse cx="84" cy="70" rx="8" ry="6" fill="#ffb7c5" opacity="0.7"/>
+                    <!-- Eyes (closed happy) -->
+                    <path d="M 38 58 Q 44 50 50 58" fill="none" stroke="#5c3d2e" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M 70 58 Q 76 50 82 58" fill="none" stroke="#5c3d2e" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Mouth -->
+                    <path d="M 52 70 Q 60 82 68 70" fill="#e63946" stroke="#5c3d2e" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Crown / sparkle -->
+                    <text x="88" y="28" font-size="18" class="anim-sway" style="transform-origin:88px 28px">✨</text>
+                </svg>
+            </div>
+
+            <!-- Speech Bubble -->
+            <div class="speech-bubble px-5 py-4 max-w-sm">
+                <p class="font-lalezar text-lg text-[#3d2c1e] mb-1">سلام! من پشن‌کوچولو هستم 😋</p>
+                <p class="text-xs sm:text-sm font-medium text-stone-600 leading-relaxed">
+                    من منوی ژلاتو هاوس رو چک می‌کنم تا به محض موجود شدن پشن فروت بهت خبر بدم! 🍦
+                </p>
+            </div>
+        </div>
+
+        <!-- ─── Cards ─── -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-7 mb-10">
+
+            <!-- Shahrak Gharb -->
+            <div class="kawaii-card p-6 flex flex-col justify-between">
+                <div class="washi-tape washi-peach"></div>
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl anim-sway">📍</span>
+                            <h3 class="text-xl font-lalezar text-[#3d2c1e]">شهرک غرب</h3>
+                        </div>
+                        <span id="shahrak-badge" class="inline-flex items-center gap-1.5 px-3 py-1 kawaii-badge text-[11px] bg-rose-100 text-rose-800">
+                            💤 ناموجوده
+                        </span>
+                    </div>
+                    <p class="text-stone-600 text-sm leading-relaxed font-medium">
+                        پشن فروت هنوز به منوی شهرک غرب نرسیده...
+                        <br>پشن‌کوچولو داره رصدش می‌کنه 😴
+                    </p>
+                </div>
+                <div class="mt-5 pt-4 border-t-2 border-dashed border-stone-200 flex items-center justify-between">
+                    <span class="text-[11px] font-semibold text-stone-400" id="shahrak-time">آخرین بررسی: چند لحظه پیش</span>
+                    <a href="http://order.gelatohouse.ir/order/gelatohouse" target="_blank" rel="noopener"
+                       class="kawaii-btn text-[11px] px-4 py-1.5 bg-white hover:bg-orange-50 text-[#5c3d2e]">
+                        مشاهده منو ↗
+                    </a>
+                </div>
+            </div>
+
+            <!-- Velenjak -->
+            <div class="kawaii-card card-glow p-6 flex flex-col justify-between" style="background: linear-gradient(160deg, #fffdfb 60%, #f0fdf4 100%);">
+                <div class="washi-tape washi-mint"></div>
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl anim-bob-d">🍦</span>
+                            <h3 class="text-xl font-lalezar text-[#3d2c1e]">ولنجک</h3>
+                        </div>
+                        <span id="velenjak-badge" class="inline-flex items-center gap-1.5 px-3 py-1 kawaii-badge text-[11px] bg-emerald-100 text-emerald-800">
+                            🌸 موجود و آماده!
+                        </span>
+                    </div>
+                    <p class="text-stone-700 text-sm leading-relaxed font-semibold">
+                        🎉 <span class="text-amber-700 font-extrabold">اسکوپ سوربتوی پشن فروت</span>
+                        <br>توی منوی ولنجک موجوده! همین الان سفارش بده 🥭
+                    </p>
+                </div>
+                <div class="mt-5 pt-4 border-t-2 border-dashed border-emerald-200 flex items-center justify-between">
+                    <span class="text-[11px] font-semibold text-stone-400" id="velenjak-time">آخرین بررسی: چند لحظه پیش</span>
+                    <a href="http://order.gelatohouse.ir/order/gelato-house" target="_blank" rel="noopener"
+                       class="kawaii-btn text-[11px] px-4 py-1.5 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-white">
+                        ثبت سفارش ⚡
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ─── Footer ─── -->
+    <footer class="max-w-3xl w-full mx-auto py-4 text-center relative z-10">
+        <p class="text-xs text-stone-400 font-medium">By Arshia, made with love ❤️</p>
+    </footer>
+
+    <script>
+    // ─── Status API ───────────────────────────────────────────────────────────
+    async function fetchStatus() {
+        try {
+            const res = await fetch('../state.json?t=' + Date.now());
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.status) {
+                    updateUI(data.status, data.errors || {});
+                    if (data.last_checked) updateTime(data.last_checked);
+                }
+            } else { showGlobalError(); }
+        } catch (e) { showGlobalError(); }
+    }
+
+    function showGlobalError() {
+        updateUI({}, {
+            'Shahrak Gharb (شهرک غرب)': 'timeout',
+            'Velenjak (ولنجک)': 'timeout'
+        });
+    }
+
+    function updateTime(isoString) {
+        const date = new Date(isoString);
+        const rtf = new Intl.RelativeTimeFormat('fa', { numeric: 'auto' });
+        const diff = Math.round((date - new Date()) / 1000);
+        let t;
+        if (Math.abs(diff) < 60) t = 'چند لحظه پیش';
+        else if (Math.abs(diff) < 3600) t = rtf.format(Math.round(diff / 60), 'minute');
+        else if (Math.abs(diff) < 86400) t = rtf.format(Math.round(diff / 3600), 'hour');
+        else t = rtf.format(Math.round(diff / 86400), 'day');
+        document.getElementById('shahrak-time').innerText = `آخرین بررسی: ${t}`;
+        document.getElementById('velenjak-time').innerText = `آخرین بررسی: ${t}`;
+    }
+
+    function updateUI(results, errors) {
+        const map = {
+            'Shahrak Gharb (شهرک غرب)': 'shahrak-badge',
+            'Velenjak (ولنجک)': 'velenjak-badge'
+        };
+        Object.entries(map).forEach(([branch, id]) => {
+            const badge = document.getElementById(id);
+            if (!badge) return;
+            if (errors && errors[branch]) {
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 kawaii-badge text-[11px] bg-amber-100 text-amber-800";
+                badge.innerHTML = '⚠️ خطا در دریافت';
+            } else if (results[branch]) {
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 kawaii-badge text-[11px] bg-emerald-100 text-emerald-800";
+                badge.innerHTML = '🌸 موجود و آماده!';
+            } else {
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 kawaii-badge text-[11px] bg-rose-100 text-rose-800";
+                badge.innerHTML = '💤 ناموجوده';
+            }
+        });
+    }
+
+    fetchStatus();
+    setInterval(fetchStatus, 60000);
+
+    // ─── Canvas: Soft Dotted Grid + Warm Gradient ─────────────────────────────
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function drawBackground() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const W = canvas.width, H = canvas.height;
+
+        // Warm gradient base
+        const grad = ctx.createRadialGradient(W * 0.3, H * 0.2, 0, W * 0.5, H * 0.5, Math.max(W, H) * 0.8);
+        grad.addColorStop(0, '#fff7ed');   // warm peach center
+        grad.addColorStop(0.5, '#fff3e6'); // soft mid
+        grad.addColorStop(1, '#fef0db');   // golden edge
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        // Subtle second glow (bottom-right mint)
+        const grad2 = ctx.createRadialGradient(W * 0.85, H * 0.85, 0, W * 0.85, H * 0.85, Math.max(W, H) * 0.5);
+        grad2.addColorStop(0, 'rgba(187, 247, 208, 0.15)');
+        grad2.addColorStop(1, 'rgba(187, 247, 208, 0)');
+        ctx.fillStyle = grad2;
+        ctx.fillRect(0, 0, W, H);
+
+        // Soft dotted grid (dots instead of dashes — much gentler)
+        const spacing = 28;
+        ctx.fillStyle = 'rgba(92, 61, 46, 0.08)';
+        for (let x = spacing; x < W; x += spacing) {
+            for (let y = spacing; y < H; y += spacing) {
+                ctx.beginPath();
+                ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+
+    window.addEventListener('resize', drawBackground);
+    drawBackground();
+    </script>
+</body>
+</html>
