@@ -92,8 +92,8 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False):
 
     # Branches to check by querying their specific sub-urls on the worker
     branches = [
-        ('Shahrak Gharb (شهرک غرب)', '/order/gelatohouse'),
-        ('Velenjak (ولنجک)', '/order/gelato-house')
+        ('Shahrak Gharb (شهرک غرب)', 'شهرک غرب', '/order/gelatohouse'),
+        ('Velenjak (ولنجک)', 'ولنجک', '/order/gelato-house')
     ]
 
     current_status = {}
@@ -103,7 +103,7 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False):
 
     print("Checking Gelato House Passion Fruit availability via Arvan Worker sub-URLs...")
 
-    for branch_name, branch_path in branches:
+    for json_key, display_name, branch_path in branches:
         target_url = arvan_worker_url.rstrip('/') + branch_path + "?json=true"
         branch_url = "http://order.gelatohouse.ir" + branch_path
         print(f"Fetching: {target_url}")
@@ -123,32 +123,34 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False):
                 error = data.get("error")
                 
                 if error:
-                    print(f"[{branch_name}] ⚠️ Worker reported error: {error}")
-                    current_status[branch_name] = previous_status.get(branch_name, False)
-                    current_errors[branch_name] = error
+                    print(f"[{display_name}] ⚠️ Worker reported error: {error}")
+                    current_status[json_key] = previous_status.get(json_key, False)
+                    current_errors[json_key] = error
                     
                     icon = "⚠️"
-                    summary_lines.append(f"{icon} <b>{branch_name}</b>: خطا در به‌روزرسانی ({error})\n🔗 <a href='{branch_url}'>سفارش آنلاین</a>")
+                    summary_lines.append(f"{icon} <b>{display_name}</b>: خطا در به‌روزرسانی ({error})\n🔗 <a href='{branch_url}'>مشاهده منو ↗</a>")
                 else:
                     status_str = "Available (موجود)" if is_available else "Not Available (ناموجود)"
-                    icon = "🟢" if is_available else "🔴"
-                    print(f"[{branch_name}] {icon} {status_str}")
+                    icon = "🌸" if is_available else "💤"
+                    print(f"[{display_name}] {icon} {status_str}")
                     
-                    current_status[branch_name] = is_available
-                    prev_available = previous_status.get(branch_name)
+                    current_status[json_key] = is_available
+                    prev_available = previous_status.get(json_key)
                     
                     if prev_available != is_available:
-                        changes.append((branch_name, is_available))
+                        changes.append((display_name, is_available))
                         
-                    summary_lines.append(f"{icon} <b>{branch_name}</b>: {'<b>موجود (Available)</b>' if is_available else 'ناموجود (Out of stock)'}\n🔗 <a href='{branch_url}'>سفارش آنلاین</a>")
+                    status_text = "<b>موجود و آماده سفارش! 🎉</b>" if is_available else "<b>فعلاً ناموجوده 😴</b>"
+                    btn_text = "ثبت سفارش ⚡" if is_available else "مشاهده منو ↗"
+                    summary_lines.append(f"{icon} <b>{display_name}</b>: {status_text}\n🔗 <a href='{branch_url}'>{btn_text}</a>")
                     
         except Exception as e:
-            print(f"[{branch_name}] ⚠️ Connection to worker failed: {e}")
-            current_status[branch_name] = previous_status.get(branch_name, False)
-            current_errors[branch_name] = str(e)
+            print(f"[{display_name}] ⚠️ Connection to worker failed: {e}")
+            current_status[json_key] = previous_status.get(json_key, False)
+            current_errors[json_key] = str(e)
             
             icon = "⚠️"
-            summary_lines.append(f"{icon} <b>{branch_name}</b>: خطا در ارتباط با پروکسی ({e})\n🔗 <a href='{branch_url}'>سفارش آنلاین</a>")
+            summary_lines.append(f"{icon} <b>{display_name}</b>: خطا در ارتباط با پروکسی ({e})\n🔗 <a href='{branch_url}'>مشاهده منو ↗</a>")
 
     # Save to local file system
     save_data = {
@@ -159,8 +161,8 @@ def run_check(bot_token=None, chat_ids=None, force_notify=False):
     save_state(save_data)
 
     if changes or force_notify:
-        alert_msg = "🍧 <b>Gelato House Passion Fruit Update</b> 🍧\n\n"
-        alert_msg += "پشن فروت در شعبه‌های ژلاتو هاوس:\n\n"
+        alert_msg = "🍧 <b>پایش‌گر پشن فروت ژلاتو هاوس</b> 💛\n\n"
+        alert_msg += "سلام! پشن‌کوچولو وضعیت جدید رو گزارش می‌ده: 🥭✨\n\n"
         alert_msg += "\n\n".join(summary_lines)
 
         print("\n--- Sending Notification ---")
