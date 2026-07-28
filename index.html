@@ -42,6 +42,20 @@
         .font-lalezar { font-family: 'Lalezar', cursive; }
         .font-hand { font-family: 'Caveat', cursive; }
 
+        /* ── Mascot Light-Mode Lock (Bypasses Dark/Night Mode Inversion) ── */
+        .mascot-box, .mascot-box * {
+            color-scheme: light only !important;
+            forced-color-adjust: none !important;
+            -webkit-forced-color-adjust: none !important;
+            isolation: isolate;
+        }
+        .mascot-svg {
+            color-scheme: light only !important;
+            forced-color-adjust: none !important;
+            -webkit-forced-color-adjust: none !important;
+            filter: drop-shadow(0 10px 15px rgba(218, 165, 105, 0.3)) !important;
+        }
+
         #bg-canvas {
             position: fixed; top: 0; left: 0;
             width: 100vw; height: 100vh;
@@ -234,9 +248,9 @@
         <!-- Mascot + Speech Bubble -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12">
             
-            <!-- SVG Mascot (GPU fixed) -->
-            <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0 anim-bob gpu-fix">
-                <svg viewBox="0 0 120 120" class="w-full h-full" style="filter: drop-shadow(0 10px 15px rgba(218, 165, 105, 0.3)); forced-color-adjust: none;">
+            <!-- SVG Mascot (GPU fixed + Light Mode Locked) -->
+            <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0 anim-bob gpu-fix mascot-box">
+                <svg viewBox="0 0 120 120" class="w-full h-full mascot-svg" style="color-scheme: light only; forced-color-adjust: none; -webkit-forced-color-adjust: none;">
                     <defs>
                         <radialGradient id="bodyGrad" cx="50%" cy="40%" r="60%">
                             <stop offset="0%" stop-color="#ffd166"/>
