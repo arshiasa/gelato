@@ -2,7 +2,7 @@ name: Gelato Monitor
 
 on:
   schedule:
-    - cron: '*/5 * * * *' # Run every 5 minutes
+    - cron: '*/5 * * * *' # Scheduled to check Gelato House status every 5 minutes
   workflow_dispatch: # Allow manual triggering
 
 jobs:
