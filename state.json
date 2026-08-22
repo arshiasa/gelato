@@ -3,6 +3,8 @@
     "Shahrak Gharb (شهرک غرب)": false,
     "Velenjak (ولنجک)": true
   },
-  "errors": {},
-  "last_checked": "2026-08-22T18:14:32.513882+00:00"
+  "errors": {
+    "Shahrak Gharb (شهرک غرب)": "HTTP Error 500: Internal Server Error"
+  },
+  "last_checked": "2026-08-22T18:48:55.231588+00:00"
 }
