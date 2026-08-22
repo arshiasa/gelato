@@ -1,8 +1,10 @@
 {
   "status": {
     "Shahrak Gharb (شهرک غرب)": false,
-    "Velenjak (ولنجک)": false
+    "Velenjak (ولنجک)": true
   },
-  "errors": {},
-  "last_checked": "2026-08-22T13:27:10.997591+00:00"
+  "errors": {
+    "Shahrak Gharb (شهرک غرب)": "error sending request for url (https://restaurant.delino.com/restaurant/menu/252983dd-4fce-4433-b9b0-793651952666): client error (Connect): dns error: failed to lookup address information: No address associated with hostname: failed to lookup address information: No address associated with hostname"
+  },
+  "last_checked": "2026-08-22T13:50:05.274426+00:00"
 }
