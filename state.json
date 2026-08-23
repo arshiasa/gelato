@@ -4,8 +4,7 @@
     "Velenjak (ولنجک)": false
   },
   "errors": {
-    "Shahrak Gharb (شهرک غرب)": "error sending request for url (https://restaurant.delino.com/restaurant/menu/252983dd-4fce-4433-b9b0-793651952666): client error (Connect): dns error: failed to lookup address information: No address associated with hostname: failed to lookup address information: No address associated with hostname",
-    "Velenjak (ولنجک)": "error sending request for url (https://restaurant.delino.com/restaurant/menu/b80e90fa-0155-41a5-a01c-633db20aad12): client error (Connect): dns error: failed to lookup address information: No address associated with hostname: failed to lookup address information: No address associated with hostname"
+    "Shahrak Gharb (شهرک غرب)": "error sending request for url (https://restaurant.delino.com/restaurant/menu/252983dd-4fce-4433-b9b0-793651952666): client error (Connect): dns error: failed to lookup address information: No address associated with hostname: failed to lookup address information: No address associated with hostname"
   },
-  "last_checked": "2026-08-23T14:03:17.969667+00:00"
+  "last_checked": "2026-08-23T14:30:10.513320+00:00"
 }
