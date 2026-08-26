@@ -6,5 +6,5 @@
   "errors": {
     "Shahrak Gharb (شهرک غرب)": "error sending request for url (https://restaurant.delino.com/restaurant/menu/252983dd-4fce-4433-b9b0-793651952666): client error (Connect): dns error: failed to lookup address information: No address associated with hostname: failed to lookup address information: No address associated with hostname"
   },
-  "last_checked": "2026-08-26T06:22:04.234135+00:00"
+  "last_checked": "2026-08-26T07:13:12.635562+00:00"
 }
