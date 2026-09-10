@@ -3,6 +3,9 @@
     "Shahrak Gharb (شهرک غرب)": false,
     "Velenjak (ولنجک)": true
   },
-  "errors": {},
-  "last_checked": "2026-09-10T15:05:20.972258+00:00"
+  "errors": {
+    "Shahrak Gharb (شهرک غرب)": "error sending request for url (https://restaurant.delino.com/restaurant/menu/252983dd-4fce-4433-b9b0-793651952666): client error (Connect): tcp connect error: Connection refused (os error 111): Connection refused (os error 111)",
+    "Velenjak (ولنجک)": "error sending request for url (https://restaurant.delino.com/restaurant/menu/b80e90fa-0155-41a5-a01c-633db20aad12): client error (Connect): tcp connect error: Connection refused (os error 111): Connection refused (os error 111)"
+  },
+  "last_checked": "2026-09-10T18:19:58.706426+00:00"
 }
