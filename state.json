@@ -3,9 +3,6 @@
     "Shahrak Gharb (شهرک غرب)": false,
     "Velenjak (ولنجک)": true
   },
-  "errors": {
-    "Shahrak Gharb (شهرک غرب)": "<urlopen error [Errno -3] Temporary failure in name resolution>",
-    "Velenjak (ولنجک)": "<urlopen error [Errno -3] Temporary failure in name resolution>"
-  },
-  "last_checked": "2026-10-21T22:01:06.698266+00:00"
+  "errors": {},
+  "last_checked": "2026-10-22T00:27:58.630969+00:00"
 }
