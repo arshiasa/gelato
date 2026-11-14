@@ -3,6 +3,9 @@
     "Shahrak Gharb (شهرک غرب)": false,
     "Velenjak (ولنجک)": true
   },
-  "errors": {},
-  "last_checked": "2026-11-14T14:28:52.123563+00:00"
+  "errors": {
+    "Shahrak Gharb (شهرک غرب)": "The read operation timed out",
+    "Velenjak (ولنجک)": "The read operation timed out"
+  },
+  "last_checked": "2026-11-14T19:23:12.930260+00:00"
 }
